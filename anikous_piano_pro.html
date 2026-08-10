@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>ANIKOUS Piano Pro</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#070b13;color:#fff;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+.app{max-width:1500px;margin:auto;padding:12px}
+.top{background:linear-gradient(135deg,#101827,#0b1220);border:1px solid #263244;border-radius:18px;padding:14px;box-shadow:0 12px 35px #0008}
+.brand{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+h1{margin:0;color:#ffd54f;font-size:20px}
+.sub{color:#9ca3af;font-size:11px;margin-top:3px}
+.badge{padding:7px 11px;border-radius:999px;background:#111827;border:1px solid #374151;color:#86efac;font-size:11px}
+.toolbar{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+button,select,input{font:inherit}
+button{border:1px solid #374151;background:#111827;color:#fff;border-radius:9px;padding:9px 11px;cursor:pointer}
+button:hover{filter:brightness(1.15)}
+button.primary{background:#ffd54f;color:#111;border-color:#ffd54f;font-weight:800}
+button.active{background:#166534;border-color:#22c55e}
+button.danger{background:#7f1d1d;border-color:#ef4444}
+select,input[type=range]{background:#0b1220;color:#fff;border:1px solid #374151;border-radius:8px;padding:8px}
+.controls{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:10px}
+.card{background:#0a101b;border:1px solid #1f2937;border-radius:12px;padding:9px}
+.card label{display:block;color:#9ca3af;font-size:10px;margin-bottom:5px}
+.card strong{font-size:14px}
+.value{color:#a7f3d0}
+.panel{margin-top:10px;background:#0a101b;border:1px solid #1f2937;border-radius:14px;padding:10px}
+.panel h2{font-size:13px;margin:0 0 8px;color:#ffd54f}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.midirow{display:grid;grid-template-columns:1fr auto auto;gap:7px}
+.status{font-size:11px;color:#9ca3af;margin-top:7px;min-height:16px}
+.info{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.info .card{min-height:58px}
+.piano-wrap{margin-top:10px;border:1px solid #263244;border-radius:14px;background:#030712;overflow:hidden}
+.piano-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px;border-bottom:1px solid #1f2937;flex-wrap:wrap}
+.piano-scroll{overflow-x:auto;overflow-y:hidden;padding:18px 18px 28px;touch-action:none}
+.piano{position:relative;height:240px;min-width:max-content}
+.key{position:absolute;user-select:none;touch-action:none}
+.white{height:220px;background:linear-gradient(#fff,#d8dde7);border:1px solid #111827;border-radius:0 0 7px 7px;z-index:1;color:#111}
+.white span,.black span{position:absolute;bottom:7px;left:0;right:0;text-align:center;font-size:10px;opacity:.55}
+.black{height:140px;background:linear-gradient(#303746,#070b12);border:1px solid #000;border-radius:0 0 5px 5px;z-index:3;color:#fff;box-shadow:0 5px 9px #0009}
+.black span{bottom:5px;opacity:.7}
+.key.active{background:linear-gradient(#ffd54f,#f59e0b)!important;box-shadow:0 0 18px #ffd54f99;transform:translateY(2px)}
+.key.remote{background:linear-gradient(#60a5fa,#2563eb)!important}
+.mark{outline:2px solid #a78bfa;outline-offset:-2px}
+#staff{min-height:170px;background:#fff;color:#111;border-radius:10px;padding:4px;overflow:auto}
+.staffline{height:26px;border-bottom:1px solid #aaa;position:relative}
+.note{position:absolute;width:10px;height:10px;border-radius:50%;background:#111;top:8px}
+.footer{text-align:center;color:#6b7280;font-size:10px;padding:12px}
+@media(max-width:900px){.controls{grid-template-columns:repeat(3,1fr)}.info{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.controls{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.midirow{grid-template-columns:1fr}.piano{height:200px}.white{height:180px}.black{height:115px}}
+</style>
+</head>
+<body>
+<div class="app">
+<section class="top">
+  <div class="brand">
+    <div><h1>🎹 ANIKOUS PIANO PRO</h1><div class="sub">88-Key Teaching • MIDI • Recording • Chords • Scales • Metronome</div></div>
+    <div id="audioBadge" class="badge">AUDIO READY</div>
+  </div>
+
+  <div class="toolbar">
+    <button id="startAudio" class="primary">🔊 START AUDIO</button>
+    <button id="holdBtn">HOLD OFF</button>
+    <button id="namesBtn">KEY NAMES ON</button>
+    <button id="centerBtn">CENTER</button>
+    <button id="fullBtn">FULLSCREEN</button>
+    <button id="allNotesBtn">ALL NOTES</button>
+  </div>
+
+  <div class="controls">
+    <div class="card"><label>INSTRUMENT</label><select id="voice"><option value="grand">Grand Piano</option><option value="bright">Bright Piano</option><option value="electric">Electric Piano</option><option value="organ">Organ</option><option value="synth">Synth</option><option value="bell">Bell</option></select></div>
+    <div class="card"><label>VOLUME</label><input id="volume" type="range" min="0" max="1" step=".01" value=".72"></div>
+    <div class="card"><label>TRANSPOSE</label><select id="transpose"></select></div>
+    <div class="card"><label>OCTAVE</label><select id="octave"></select></div>
+    <div class="card"><label>SUSTAIN</label><select id="sustain"><option value="0.08">Short</option><option value=".35">Normal</option><option value=".8">Long</option><option value="1.5">Pedal</option></select></div>
+    <div class="card"><label>POLYPHONY</label><select id="poly"><option>16</option><option selected>32</option><option>64</option></select></div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>🎛️ MIDI KEYBOARD</h2>
+  <div class="midirow">
+    <select id="midiInput"><option value="">No MIDI device</option></select>
+    <button id="midiConnect" class="primary">CONNECT MIDI</button>
+    <button id="midiRefresh">↻ REFRESH</button>
+  </div>
+  <div class="toolbar">
+    <button id="midiPanic" class="danger">■ STOP ALL NOTES</button>
+    <button id="midiLearn">🎯 MIDI LEARN</button>
+    <button id="midiTest">🎵 TEST C4</button>
+  </div>
+  <div id="midiStatus" class="status">Connect a USB MIDI keyboard, then press a key.</div>
+</section>
+
+<section class="panel">
+  <div class="info">
+    <div class="card"><label>KEYS</label><strong id="keyInfo">—</strong></div>
+    <div class="card"><label>CHORD</label><strong id="chordInfo">—</strong></div>
+    <div class="card"><label>ROOT</label><strong id="rootInfo">—</strong></div>
+    <div class="card"><label>VELOCITY</label><strong id="velInfo">—</strong></div>
+  </div>
+</section>
+
+<section class="piano-wrap">
+  <div class="piano-head">
+    <div>
+      <strong>🎹 88-Key Piano</strong>
+      <span class="sub">Touch / mouse / computer keyboard / MIDI</span>
+    </div>
+    <div class="toolbar" style="margin:0">
+      <button id="zoomOut">−</button><button id="zoomIn">＋</button>
+      <button id="octaveDown">◀ Octave</button><button id="octaveUp">Octave ▶</button>
+    </div>
+  </div>
+  <div id="pianoScroll" class="piano-scroll"><div id="piano" class="piano"></div></div>
+</section>
+
+<section class="panel">
+  <h2>🎼 SCALE & CHORD TOOLS</h2>
+  <div class="grid2">
+    <div class="card">
+      <label>SCALE</label>
+      <select id="scale">
+        <option value="">Off</option><option value="major">C Major</option><option value="minor">C Minor</option>
+        <option value="pentatonic">C Pentatonic</option><option value="blues">C Blues</option><option value="chromatic">Chromatic</option>
+      </select>
+      <div class="toolbar"><button id="showScale">HIGHLIGHT SCALE</button><button id="clearScale">CLEAR</button></div>
+    </div>
+    <div class="card">
+      <label>CHORD</label>
+      <select id="chord"><option value="">Choose chord</option><option>C Major</option><option>C Minor</option><option>G Major</option><option>A Minor</option><option>F Major</option><option>D Minor</option><option>E Minor</option></select>
+      <div class="toolbar"><button id="playChord">▶ PLAY CHORD</button><button id="arpChord">▶ ARPEGGIO</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>⏱️ METRONOME</h2>
+  <div class="toolbar">
+    <button id="metroBtn">METRONOME OFF</button>
+    <select id="bpm"><option>60</option><option>80</option><option selected>100</option><option>120</option><option>140</option><option>160</option></select>
+    <button id="tapBtn">TAP TEMPO</button>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>🔴 RECORDER & PRACTICE</h2>
+  <div class="toolbar">
+    <button id="recordBtn" class="primary">● RECORD</button>
+    <button id="stopRec">■ STOP</button>
+    <button id="playRec">▶ PLAY</button>
+    <button id="loopBtn">LOOP OFF</button>
+    <button id="clearRec">CLEAR</button>
+    <button id="saveRec">💾 SAVE</button>
+    <button id="loadRec">📂 LOAD</button>
+    <button id="exportMidi">⬇ MIDI</button>
+  </div>
+  <div id="recStatus" class="status">No recording.</div>
+</section>
+
+<section class="panel">
+  <h2>🎼 PRACTICE SCORE</h2>
+  <div id="staff"></div>
+</section>
+
+<div class="footer">ANIKOUS Music Institute • Piano Pro</div>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+const A4=69, NOTE_NAMES=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+const BLACK=[1,3,6,8,10];
+let ctx=null, master=null, compressor=null;
+let active=new Map(), recorded=[], recording=false, recordStart=0, loop=false, hold=false;
+let showNames=true, keyWidth=38, transpose=0, octaveShift=0, midi=null, midiInput=null;
+let metroTimer=null, tapTimes=[], currentVelocity=100;
+
+const $=id=>document.getElementById(id);
+const piano=$("piano");
+
+for(let i=-24;i<=24;i++) $("transpose").add(new Option((i>0?"+":"")+i+" semitones",i));
+$("transpose").value=0;
+for(let i=-2;i<=8;i++) $("octave").add(new Option("Oct "+(i>=0?i:"-"+Math.abs(i)),i));
+$("octave").value=0;
+
+function audio(){
+  if(ctx) { if(ctx.state==="suspended") ctx.resume(); return; }
+  ctx=new (window.AudioContext||window.webkitAudioContext)();
+  master=ctx.createGain(); master.gain.value=Number($("volume").value);
+  compressor=ctx.createDynamicsCompressor();
+  compressor.threshold.value=-18; compressor.knee.value=20; compressor.ratio.value=8;
+  compressor.attack.value=.003; compressor.release.value=.15;
+  master.connect(compressor); compressor.connect(ctx.destination);
+  $("audioBadge").textContent="AUDIO ON";
+  $("audioBadge").style.color="#86efac";
+}
+$("startAudio").onclick=audio;
+$("volume").oninput=()=>{if(master)master.gain.value=Number($("volume").value)};
+
+function noteName(n){return NOTE_NAMES[(n+1200)%12]+(Math.floor(n/12)-1)}
+function freq(n){return 440*Math.pow(2,(n-69)/12)}
+
+function voiceShape(v){
+  if(v==="bright")return "square";
+  if(v==="electric")return "triangle";
+  if(v==="organ")return "sine";
+  if(v==="synth")return "sawtooth";
+  if(v==="bell")return "sine";
+  return "triangle";
+}
+
+function playNote(raw,vel=100,duration=null){
+  audio();
+  const n=raw+Number($("transpose").value)+Number($("octave").value)*12;
+  if(n<0||n>127)return;
+  stopNote(n,false);
+  const now=ctx.currentTime;
+  const g=ctx.createGain();
+  const filter=ctx.createBiquadFilter();
+  filter.type="lowpass";
+  filter.frequency.value=$("voice").value==="bright"?6500:4200;
+  g.gain.setValueAtTime(0.0001,now);
+  const amp=Math.max(.03,Math.min(1,vel/127))*0.34;
+  g.gain.exponentialRampToValueAtTime(amp,now+.008);
+  const release=duration===null?Number($("sustain").value):duration;
+  g.gain.exponentialRampToValueAtTime(.0001,now+Math.max(.08,release));
+  filter.connect(g); g.connect(master);
+  const oscs=[];
+  const v=$("voice").value;
+  const parts=v==="grand"?[[1,1],[2,.32],[3,.14]]:[[1,1]];
+  parts.forEach(([mul,amp2])=>{
+    const o=ctx.createOscillator(); o.type=voiceShape(v); o.frequency.value=freq(n)*mul;
+    const og=ctx.createGain(); og.gain.value=amp2;
+    o.connect(og); og.connect(filter); o.start(now); o.stop(now+Math.max(.15,release+.08)); oscs.push(o);
+  });
+  if(v==="bell"){
+    const o=ctx.createOscillator(); o.type="sine"; o.frequency.value=freq(n)*2.01;
+    const og=ctx.createGain(); og.gain.setValueAtTime(.12,now); og.gain.exponentialRampToValueAtTime(.0001,now+1.2);
+    o.connect(og); og.connect(master); o.start(now); o.stop(now+1.3); oscs.push(o);
+  }
+  active.set(n,{g,oscs});
+}
+
+function stopNote(raw,alreadyAdjusted=true){
+  const n=alreadyAdjusted?raw:raw+Number($("transpose").value)+Number($("octave").value)*12;
+  const s=active.get(n); if(!s)return;
+  const now=ctx?.currentTime||0;
+  try{s.g.gain.cancelScheduledValues(now);s.g.gain.setValueAtTime(Math.max(.0001,s.g.gain.value),now);s.g.gain.exponentialRampToValueAtTime(.0001,now+.06);setTimeout(()=>s.oscs.forEach(o=>{try{o.stop()}catch(e){}}),100)}catch(e){}
+  active.delete(n);
+}
+
+function keyDown(raw,velocity=100,source="local"){
+  audio();
+  const adjusted=raw+Number($("transpose").value)+Number($("octave").value)*12;
+  if(active.has(adjusted))return;
+  currentVelocity=velocity;
+  playNote(raw,velocity);
+  document.querySelectorAll(`[data-note="${raw}"]`).forEach(k=>k.classList.add(source==="remote"?"remote":"active"));
+  $("keyInfo").textContent=noteName(adjusted);
+  $("velInfo").textContent=velocity;
+  updateChord();
+  if(recording)recorded.push({note:raw,vel:velocity,t:performance.now()-recordStart});
+}
+function keyUp(raw,source="local"){
+  const adjusted=raw+Number($("transpose").value)+Number($("octave").value)*12;
+  if(!hold)stopNote(adjusted,true);
+  document.querySelectorAll(`[data-note="${raw}"]`).forEach(k=>k.classList.remove(source==="remote"?"remote":"active"));
+}
+
+function build(){
+  piano.innerHTML="";
+  let whites=[];
+  for(let n=21;n<=108;n++) if(!BLACK.includes(n%12)) whites.push(n);
+  piano.style.width=(whites.length*keyWidth)+"px";
+  whites.forEach((n,i)=>{
+    const k=document.createElement("div"); k.className="key white";k.dataset.note=n;
+    k.style.left=(i*keyWidth)+"px";k.style.width=(keyWidth-1)+"px";
+    k.innerHTML=`<span>${showNames?noteName(n):""}</span>`;
+    events(k,n);piano.appendChild(k);
+  });
+  whites.forEach((n,i)=>{
+    const next=n+1;
+    if(next<=108&&BLACK.includes(next%12)){
+      const k=document.createElement("div");k.className="key black";k.dataset.note=next;
+      k.style.left=(i*keyWidth+keyWidth*.62)+"px";k.style.width=(keyWidth*.58)+"px";
+      k.innerHTML=`<span>${showNames?noteName(next):""}</span>`;
+      events(k,next);piano.appendChild(k);
+    }
+  });
+}
+function events(k,n){
+  k.onpointerdown=e=>{e.preventDefault();k.setPointerCapture(e.pointerId);keyDown(n,110)};
+  k.onpointerup=e=>{e.preventDefault();keyUp(n)};
+  k.onpointercancel=()=>keyUp(n);
+}
+build();
+
+const map={a:60,w:61,s:62,e:63,d:64,f:65,t:66,g:67,y:68,h:69,u:70,j:71,k:72,o:73,l:74,p:75,";":76};
+window.addEventListener("keydown",e=>{
+  if(["INPUT","SELECT","TEXTAREA"].includes(e.target.tagName))return;
+  if(e.code==="Space"){e.preventDefault();hold=!hold;$("holdBtn").textContent=hold?"HOLD ON":"HOLD OFF";$("holdBtn").classList.toggle("active",hold);return}
+  const n=map[e.key.toLowerCase()];if(n!==undefined&&!e.repeat)keyDown(n,110);
+});
+window.addEventListener("keyup",e=>{const n=map[e.key.toLowerCase()];if(n!==undefined)keyUp(n)});
+
+function updateChord(){
+  const ns=[...active.keys()].map(n=>(n%12+12)%12);
+  const unique=[...new Set(ns)].sort((a,b)=>a-b);
+  const patterns={"0,4,7":"Major","0,3,7":"Minor","0,3,6":"Diminished","0,4,8":"Augmented","0,3,7,10":"7th","0,4,7,11":"Maj7"};
+  let found="—";
+  for(const root of unique){
+    const p=unique.map(x=>(x-root+12)%12).sort((a,b)=>a-b).join(",");
+    if(patterns[p]){found=NOTE_NAMES[root]+" "+patterns[p];$("rootInfo").textContent=NOTE_NAMES[root];break}
+  }
+  $("chordInfo").textContent=found;
+}
+
+$("holdBtn").onclick=()=>{hold=!hold;$("holdBtn").textContent=hold?"HOLD ON":"HOLD OFF";$("holdBtn").classList.toggle("active",hold)};
+$("namesBtn").onclick=()=>{showNames=!showNames;$("namesBtn").textContent=showNames?"KEY NAMES ON":"KEY NAMES OFF";build()};
+$("centerBtn").onclick=()=>{$("pianoScroll").scrollLeft=($("pianoScroll").scrollWidth-$("pianoScroll").clientWidth)/2};
+$("zoomIn").onclick=()=>{if(keyWidth<65){keyWidth+=4;build()}};
+$("zoomOut").onclick=()=>{if(keyWidth>22){keyWidth-=4;build()}};
+$("transpose").onchange=()=>{transpose=Number($("transpose").value);build()};
+$("fullBtn").onclick=()=>{const el=document.querySelector(".piano-wrap");if(!document.fullscreenElement)el.requestFullscreen?.();else document.exitFullscreen?.()};
+$("allNotesBtn").onclick=()=>{document.querySelectorAll(".key").forEach(k=>k.classList.remove("mark"));};
+$("octaveDown").onclick=()=>{let s=$("octave");s.value=Math.max(-2,Number(s.value)-1);s.dispatchEvent(new Event("change"))};
+$("octaveUp").onclick=()=>{let s=$("octave");s.value=Math.min(8,Number(s.value)+1);s.dispatchEvent(new Event("change"))};
+$("octave").onchange=()=>{build()};
+
+const scales={major:[0,2,4,5,7,9,11],minor:[0,2,3,5,7,8,10],pentatonic:[0,2,4,7,9],blues:[0,3,5,6,7,10],chromatic:[0,1,2,3,4,5,6,7,8,9,10,11]};
+$("showScale").onclick=()=>{
+  document.querySelectorAll(".key").forEach(k=>k.classList.remove("mark"));
+  const sc=scales[$("scale").value];if(!sc)return;
+  document.querySelectorAll(".key").forEach(k=>{if(sc.includes(Number(k.dataset.note)%12))k.classList.add("mark")});
+};
+$("clearScale").onclick=()=>document.querySelectorAll(".key").forEach(k=>k.classList.remove("mark"));
+
+const chords={"C Major":[60,64,67],"C Minor":[60,63,67],"G Major":[67,71,74],"A Minor":[69,72,76],"F Major":[65,69,72],"D Minor":[62,65,69],"E Minor":[64,67,71]};
+function playChordNotes(notes,arp=false){
+  audio(); notes.forEach((n,i)=>setTimeout(()=>keyDown(n,105),arp?i*140:0));
+  setTimeout(()=>notes.forEach(n=>keyUp(n)),arp?notes.length*140+350:650);
+}
+$("playChord").onclick=()=>{const c=chords[$("chord").value];if(c)playChordNotes(c,false)};
+$("arpChord").onclick=()=>{const c=chords[$("chord").value];if(c)playChordNotes(c,true)};
+
+function metro(){
+  clearInterval(metroTimer);
+  if(!$("metroBtn").classList.contains("active"))return;
+  const bpm=Number($("bpm").value);metroTimer=setInterval(()=>{audio();const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=880;g.gain.setValueAtTime(.15,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.07);o.connect(g);g.connect(master);o.start();o.stop(ctx.currentTime+.08)},60000/bpm);
+}
+$("metroBtn").onclick=()=>{$("metroBtn").classList.toggle("active");$("metroBtn").textContent=$("metroBtn").classList.contains("active")?"METRONOME ON":"METRONOME OFF";metro()};
+$("tapBtn").onclick=()=>{const now=Date.now();tapTimes=tapTimes.filter(t=>now-t<3000);tapTimes.push(now);if(tapTimes.length>1){const avg=(tapTimes[tapTimes.length-1]-tapTimes[0])/(tapTimes.length-1);$("bpm").value=Math.max(40,Math.min(220,Math.round(60000/avg))) }};
+
+$("recordBtn").onclick=()=>{audio();recorded=[];recording=true;recordStart=performance.now();$("recStatus").textContent="🔴 Recording..."};
+$("stopRec").onclick=()=>{recording=false;$("recStatus").textContent=recorded.length?`Saved ${recorded.length} notes.`:"No notes recorded." ;renderStaff()};
+$("clearRec").onclick=()=>{recorded=[];recording=false;renderStaff();$("recStatus").textContent="Recording cleared."};
+$("playRec").onclick=async()=>{
+  if(!recorded.length)return;
+  audio();for(const e of recorded){await new Promise(r=>setTimeout(r,Math.max(0,e.t-(recorded[recorded.indexOf(e)-1]?.t||0))));keyDown(e.note,e.vel);setTimeout(()=>keyUp(e.note),300)}
+};
+$("loopBtn").onclick=()=>{loop=!loop;$("loopBtn").textContent=loop?"LOOP ON":"LOOP OFF";$("loopBtn").classList.toggle("active",loop)};
+$("saveRec").onclick=()=>localStorage.setItem("ANIKOUS_PIANO_SCORE",JSON.stringify(recorded));
+$("loadRec").onclick=()=>{try{recorded=JSON.parse(localStorage.getItem("ANIKOUS_PIANO_SCORE")||"[]");renderStaff();$("recStatus").textContent=`Loaded ${recorded.length} notes.`}catch(e){}};
+$("exportMidi").onclick=()=>{
+  if(!recorded.length)return;
+  const bytes=[0x4d,0x54,0x68,0x64,0,0,0,6,0,0,0,1,0,96,0x4d,0x54,0x72,0x6b,0,0,0,0];
+  const events=[];recorded.forEach(e=>{events.push(0,0x90,e.note,Math.max(1,Math.min(127,e.vel)),0x60,0x80,e.note,0x40)});
+  const end=[0,0xff,0x2f,0];const track=events.concat(end);bytes[19]=(track.length>>24)&255;bytes[20]=(track.length>>16)&255;bytes[21]=(track.length>>8)&255;bytes[22]=track.length&255;
+  const blob=new Blob([new Uint8Array(bytes.concat(track))],{type:"audio/midi"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="Anikous_Piano_Score.mid";a.click();
+};
+
+function renderStaff(){
+  const s=$("staff");s.innerHTML="";
+  for(let i=0;i<5;i++)s.insertAdjacentHTML("beforeend",'<div class="staffline"></div>');
+  const display=recorded.slice(-80);
+  display.forEach((e,i)=>{const n=e.note;const x=20+i*12;const y=110-(n-60)*2.2;const dot=document.createElement("div");dot.className="note";dot.style.left=x+"px";dot.style.top=Math.max(4,Math.min(130,y))+"px";s.appendChild(dot)});
+}
+
+async function connectMIDI(){
+  audio();
+  if(!navigator.requestMIDIAccess){$("midiStatus").textContent="Web MIDI not supported. Use Chrome/Edge desktop.";return}
+  try{
+    midi=await navigator.requestMIDIAccess({sysex:false});
+    midi.onstatechange=refreshMIDI;
+    refreshMIDI();
+  }catch(e){$("midiStatus").textContent="MIDI permission failed: "+e.message}
+}
+function refreshMIDI(){
+  if(!midi)return;
+  const inputs=[...midi.inputs.values()],sel=$("midiInput");sel.innerHTML="";
+  if(!inputs.length){sel.add(new Option("No MIDI device",""));midiInput=null;$("midiStatus").textContent="MIDI ready, no keyboard detected.";return}
+  inputs.forEach(x=>sel.add(new Option(x.name||"MIDI Keyboard",x.id)));
+  const id=midiInput&&midi.inputs.has(midiInput.id)?midiInput.id:inputs[0].id;
+  sel.value=id;attachMIDI(midi.inputs.get(id));
+}
+function attachMIDI(input){
+  if(midiInput)midiInput.onmidimessage=null;
+  midiInput=input||null;
+  if(!input){$("midiStatus").textContent="No MIDI device selected.";return}
+  input.onmidimessage=e=>{
+    const d=e.data||[],st=d[0]&0xf0,n=d[1],v=d[2]||0;
+    if(st===0x90&&v>0)keyDown(n,v);
+    else if(st===0x80||(st===0x90&&v===0))keyUp(n);
+  };
+  $("midiStatus").textContent="🟢 Connected: "+(input.name||"MIDI Keyboard")+" — PLAY A KEY";
+}
+$("midiConnect").onclick=connectMIDI;
+$("midiRefresh").onclick=()=>midi?refreshMIDI():connectMIDI();
+$("midiInput").onchange=()=>{if(midi)attachMIDI(midi.inputs.get($("midiInput").value)||null)};
+$("midiPanic").onclick=()=>{if(midiInput)try{midiInput.send([0xb0,123,0]);midiInput.send([0xb0,120,0])}catch(e){}[...active.keys()].forEach(n=>stopNote(n,true));document.querySelectorAll(".key").forEach(k=>k.classList.remove("active","remote"))};
+$("midiTest").onclick=()=>{keyDown(60,110);setTimeout(()=>keyUp(60),500)};
+$("midiLearn").onclick=()=>alert("MIDI Learn: press any key on your keyboard. The piano will play the incoming note.");
+
+})();
+</script>
+</body>
+</html>
