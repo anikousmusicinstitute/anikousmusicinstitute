@@ -1,0 +1,2211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+
+<title>ANIKOUS Music Institute - Live Class</title>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    min-height:100vh;
+    font-family:Inter,Arial,sans-serif;
+    background:
+      radial-gradient(circle at 10% 5%,rgba(255,210,70,.10),transparent 25%),
+      radial-gradient(circle at 90% 20%,rgba(80,100,255,.10),transparent 25%),
+      #07090e;
+    color:#fff;
+}
+
+button,input,select{
+    font:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+/* ================= HEADER ================= */
+
+.topbar{
+    position:sticky;
+    top:0;
+    z-index:100;
+    padding:14px 18px;
+    background:rgba(7,9,14,.88);
+    backdrop-filter:blur(20px);
+    border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.brand{
+    max-width:1200px;
+    margin:auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+}
+
+.brand-left{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.logo{
+    width:45px;
+    height:45px;
+    display:grid;
+    place-items:center;
+    border-radius:14px;
+    background:linear-gradient(145deg,#fff0a0,#c49319);
+    font-size:23px;
+    box-shadow:0 10px 30px rgba(220,180,50,.2);
+}
+
+.brand-title{
+    font-size:16px;
+    font-weight:900;
+}
+
+.brand-sub{
+    font-size:9px;
+    opacity:.45;
+    letter-spacing:1.5px;
+    margin-top:3px;
+}
+
+.connection{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    padding:8px 12px;
+    border-radius:50px;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08);
+    font-size:10px;
+    font-weight:800;
+}
+
+.dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:#777;
+}
+
+.dot.online{
+    background:#36ed91;
+    box-shadow:0 0 14px #36ed91;
+}
+
+/* ================= MAIN ================= */
+
+.container{
+    width:calc(100% - 28px);
+    max-width:1200px;
+    margin:22px auto 50px;
+}
+
+.hero{
+    padding:24px;
+    border-radius:26px;
+    background:
+      linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.018));
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:0 25px 70px rgba(0,0,0,.35);
+}
+
+.hero h1{
+    font-size:clamp(24px,5vw,38px);
+    font-weight:950;
+}
+
+.gold{
+    color:#ffe27b;
+}
+
+.hero p{
+    margin-top:7px;
+    font-size:12px;
+    opacity:.55;
+}
+
+/* ================= ROOM ================= */
+
+.room-box{
+    margin-top:16px;
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:10px;
+}
+
+.room-box input{
+    width:100%;
+    height:50px;
+    padding:0 15px;
+    color:#fff;
+    background:#0d1017;
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:14px;
+    outline:none;
+}
+
+.btn{
+    min-height:50px;
+    padding:0 18px;
+    border:0;
+    border-radius:14px;
+    font-weight:900;
+}
+
+.btn-gold{
+    color:#151515;
+    background:linear-gradient(135deg,#fff0a0,#d1a62d);
+    box-shadow:0 10px 25px rgba(210,165,40,.18);
+}
+
+.btn-dark{
+    color:#fff;
+    background:rgba(255,255,255,.055);
+    border:1px solid rgba(255,255,255,.09);
+}
+
+/* ================= VIDEO ================= */
+
+.video-grid{
+    margin-top:16px;
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:14px;
+}
+
+.video-card{
+    position:relative;
+    min-height:230px;
+    overflow:hidden;
+    border-radius:22px;
+    background:#030406;
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:0 18px 45px rgba(0,0,0,.35);
+}
+
+.video-card video{
+    width:100%;
+    height:100%;
+    min-height:230px;
+    object-fit:cover;
+    background:#020304;
+}
+
+.video-label{
+    position:absolute;
+    top:12px;
+    left:12px;
+    padding:7px 10px;
+    border-radius:9px;
+    background:rgba(0,0,0,.55);
+    backdrop-filter:blur(10px);
+    font-size:10px;
+    font-weight:800;
+}
+
+/* ================= CONTROLS ================= */
+
+.controls{
+    margin-top:14px;
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:9px;
+}
+
+.control-btn{
+    min-height:48px;
+    border-radius:14px;
+    color:#fff;
+    background:rgba(255,255,255,.045);
+    border:1px solid rgba(255,255,255,.08);
+    font-size:11px;
+    font-weight:800;
+}
+
+.control-btn.active{
+    background:rgba(255,215,80,.13);
+    border-color:rgba(255,215,80,.3);
+    color:#ffe27b;
+}
+
+/* ================= MIDI PREMIUM ================= */
+
+#midiPanel{
+    position:relative;
+    overflow:hidden;
+    margin-top:18px;
+    border-radius:28px;
+    background:
+      radial-gradient(circle at 10% 0%,rgba(255,215,90,.13),transparent 30%),
+      radial-gradient(circle at 100% 100%,rgba(80,100,255,.10),transparent 30%),
+      linear-gradient(145deg,#151922,#080a0f 72%);
+    border:1px solid rgba(255,215,90,.22);
+    box-shadow:
+      0 30px 90px rgba(0,0,0,.55),
+      inset 0 1px rgba(255,255,255,.08);
+}
+
+.midi-head{
+    padding:24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    border-bottom:1px solid rgba(255,255,255,.07);
+}
+
+.midi-brand{
+    display:flex;
+    align-items:center;
+    gap:13px;
+}
+
+.midi-logo{
+    width:56px;
+    height:56px;
+    display:grid;
+    place-items:center;
+    border-radius:18px;
+    font-size:28px;
+    background:linear-gradient(145deg,#fff1a9,#d5a82f,#805e08);
+    box-shadow:0 14px 35px rgba(220,175,50,.25);
+}
+
+.midi-title{
+    font-size:20px;
+    font-weight:950;
+}
+
+.midi-sub{
+    margin-top:3px;
+    font-size:9px;
+    opacity:.45;
+    letter-spacing:1.7px;
+    text-transform:uppercase;
+}
+
+.midi-status{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    padding:8px 12px;
+    border-radius:50px;
+    background:rgba(255,255,255,.045);
+    border:1px solid rgba(255,255,255,.08);
+    font-size:9px;
+    font-weight:900;
+}
+
+.midi-status.online{
+    color:#4df29c;
+}
+
+.midi-status.online .dot{
+    background:#4df29c;
+    box-shadow:0 0 14px #4df29c;
+}
+
+.midi-body{
+    padding:22px;
+}
+
+.device-card{
+    min-height:78px;
+    padding:16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    border-radius:17px;
+    background:rgba(255,255,255,.045);
+    border:1px solid rgba(255,255,255,.07);
+}
+
+.device-label{
+    font-size:8px;
+    text-transform:uppercase;
+    letter-spacing:1.2px;
+    opacity:.42;
+}
+
+.device-name{
+    margin-top:5px;
+    font-size:15px;
+    font-weight:900;
+}
+
+.usb-badge{
+    padding:8px 10px;
+    border-radius:10px;
+    color:#ffe27b;
+    background:rgba(255,215,90,.08);
+    border:1px solid rgba(255,215,90,.18);
+    font-size:9px;
+    font-weight:900;
+}
+
+.midi-select{
+    margin-top:10px;
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:9px;
+}
+
+#midiDeviceSelect{
+    width:100%;
+    height:52px;
+    padding:0 13px;
+    color:#fff;
+    background:#0b0e14;
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:14px;
+    outline:none;
+}
+
+.midi-btn{
+    height:52px;
+    padding:0 18px;
+    border:0;
+    border-radius:14px;
+    color:#151515;
+    background:linear-gradient(135deg,#fff0a0,#d0a329);
+    font-size:11px;
+    font-weight:950;
+    letter-spacing:.7px;
+}
+
+.midi-btn.dark{
+    color:#fff;
+    background:rgba(255,255,255,.055);
+    border:1px solid rgba(255,255,255,.08);
+}
+
+.midi-monitor{
+    margin-top:10px;
+    padding:16px;
+    min-height:70px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-radius:17px;
+    background:#090c12;
+    border:1px solid rgba(255,255,255,.07);
+}
+
+.monitor-label{
+    font-size:9px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    opacity:.45;
+}
+
+.monitor-small{
+    margin-top:3px;
+    font-size:9px;
+    opacity:.3;
+}
+
+#noteMonitor{
+    color:#ffe27b;
+    font-size:16px;
+    font-weight:950;
+}
+
+.midi-actions{
+    margin-top:10px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:9px;
+}
+
+.midi-message{
+    margin-top:12px;
+    padding:12px 14px;
+    border-radius:12px;
+    background:rgba(255,255,255,.025);
+    border:1px solid rgba(255,255,255,.06);
+    font-size:10px;
+    line-height:1.5;
+    opacity:.7;
+}
+
+.features{
+    padding:0 22px 22px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:8px;
+}
+
+.feature{
+    min-height:53px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:6px;
+    border-radius:13px;
+    background:rgba(255,255,255,.035);
+    border:1px solid rgba(255,255,255,.055);
+    font-size:8px;
+    letter-spacing:.8px;
+    opacity:.7;
+}
+
+.feature b{
+    color:#ffe27b;
+    font-size:12px;
+}
+
+/* ================= CHAT ================= */
+
+.chat-panel{
+    margin-top:18px;
+    padding:18px;
+    border-radius:22px;
+    background:rgba(255,255,255,.035);
+    border:1px solid rgba(255,255,255,.07);
+}
+
+.chat-title{
+    font-weight:900;
+    margin-bottom:10px;
+}
+
+.chat-messages{
+    height:180px;
+    overflow:auto;
+    padding:10px;
+    border-radius:14px;
+    background:#080a0f;
+}
+
+.chat-input{
+    margin-top:10px;
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:8px;
+}
+
+.chat-input input{
+    height:45px;
+    padding:0 13px;
+    color:#fff;
+    background:#0c0f15;
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:12px;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media(max-width:700px){
+
+    .container{
+        width:calc(100% - 18px);
+        margin-top:12px;
+    }
+
+    .hero{
+        padding:18px;
+        border-radius:21px;
+    }
+
+    .room-box{
+        grid-template-columns:1fr;
+    }
+
+    .video-grid{
+        grid-template-columns:1fr;
+    }
+
+    .video-card,
+    .video-card video{
+        min-height:210px;
+    }
+
+    .controls{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .midi-head{
+        padding:18px;
+    }
+
+    .midi-body{
+        padding:17px;
+    }
+
+    .midi-title{
+        font-size:17px;
+    }
+
+    .midi-logo{
+        width:48px;
+        height:48px;
+        border-radius:15px;
+    }
+
+    .midi-select{
+        grid-template-columns:1fr;
+    }
+
+    .midi-btn{
+        width:100%;
+    }
+
+    .features{
+        grid-template-columns:repeat(2,1fr);
+        padding:0 17px 17px;
+    }
+
+    .brand-sub{
+        display:none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+<div class="brand">
+
+<div class="brand-left">
+<div class="logo">🎼</div>
+
+<div>
+<div class="brand-title">
+ANIKOUS Music Institute
+</div>
+
+<div class="brand-sub">
+PROFESSIONAL LIVE MUSIC CLASS
+</div>
+</div>
+</div>
+
+<div class="connection">
+<span id="connectionDot" class="dot"></span>
+<span id="connectionText">OFFLINE</span>
+</div>
+
+</div>
+</header>
+
+
+<main class="container">
+
+<section class="hero">
+
+<h1>
+Live <span class="gold">Music Classroom</span>
+</h1>
+
+<p>
+Professional video, audio, MIDI keyboard and live class system.
+</p>
+
+<div class="room-box">
+
+<input
+id="roomId"
+type="text"
+placeholder="Enter Class ID"
+/>
+
+<button
+id="joinBtn"
+class="btn btn-gold"
+type="button"
+>
+JOIN CLASS
+</button>
+
+</div>
+
+</section>
+
+
+<section class="video-grid">
+
+<div class="video-card">
+
+<video
+id="remoteVideo"
+autoplay
+playsinline
+></video>
+
+<div class="video-label">
+👨‍🏫 TEACHER
+</div>
+
+</div>
+
+
+<div class="video-card">
+
+<video
+id="localVideo"
+autoplay
+muted
+playsinline
+></video>
+
+<div class="video-label">
+🎓 YOU
+</div>
+
+</div>
+
+</section>
+
+
+<div class="controls">
+
+<button
+id="micBtn"
+class="control-btn"
+type="button"
+>
+🎤 MIC ON
+</button>
+
+<button
+id="cameraBtn"
+class="control-btn"
+type="button"
+>
+📷 CAMERA ON
+</button>
+
+<button
+id="switchCameraBtn"
+class="control-btn"
+type="button"
+>
+🔄 SWITCH
+</button>
+
+<button
+id="screenBtn"
+class="control-btn"
+type="button"
+>
+🖥️ SCREEN
+</button>
+
+<button
+id="leaveBtn"
+class="control-btn"
+type="button"
+>
+🚪 LEAVE
+</button>
+
+</div>
+
+
+<!-- ================= PREMIUM MIDI ================= -->
+
+<section id="midiPanel">
+
+<div class="midi-head">
+
+<div class="midi-brand">
+
+<div class="midi-logo">
+🎹
+</div>
+
+<div>
+
+<div class="midi-title">
+ANIKOUS MIDI Studio
+</div>
+
+<div class="midi-sub">
+Professional Live Performance Console
+</div>
+
+</div>
+
+</div>
+
+<div
+id="midiStatusBadge"
+class="midi-status"
+>
+<span id="midiDot" class="dot"></span>
+<span id="midiStatusText">OFFLINE</span>
+</div>
+
+</div>
+
+
+<div class="midi-body">
+
+
+<div class="device-card">
+
+<div>
+
+<div class="device-label">
+Active MIDI Device
+</div>
+
+<div
+id="midiDeviceName"
+class="device-name"
+>
+Not Connected
+</div>
+
+</div>
+
+<div class="usb-badge">
+USB MIDI
+</div>
+
+</div>
+
+
+<div class="midi-select">
+
+<select id="midiDeviceSelect">
+
+<option value="">
+No MIDI Device Detected
+</option>
+
+</select>
+
+<button
+id="connectMidiBtn"
+class="midi-btn"
+type="button"
+>
+CONNECT
+</button>
+
+</div>
+
+
+<div class="midi-monitor">
+
+<div>
+
+<div class="monitor-label">
+Live MIDI Monitor
+</div>
+
+<div class="monitor-small">
+Real-time keyboard input
+</div>
+
+</div>
+
+<div id="noteMonitor">
+READY
+</div>
+
+</div>
+
+
+<div class="midi-actions">
+
+<button
+id="refreshMidiBtn"
+class="midi-btn dark"
+type="button"
+>
+↻ REFRESH DEVICE
+</button>
+
+<button
+id="panicMidiBtn"
+class="midi-btn dark"
+type="button"
+>
+■ STOP ALL NOTES
+</button>
+
+</div>
+
+
+<div
+id="midiMessage"
+class="midi-message"
+>
+Connect your Arturia keyboard using a USB-C
+data/OTG connection.
+</div>
+
+</div>
+
+
+<div class="features">
+
+<div class="feature">
+<b>●</b>
+LOW LATENCY
+</div>
+
+<div class="feature">
+<b>◈</b>
+LIVE MIDI
+</div>
+
+<div class="feature">
+<b>↻</b>
+AUTO RECONNECT
+</div>
+
+<div class="feature">
+<b>◆</b>
+CLASS READY
+</div>
+
+</div>
+
+</section>
+
+
+<!-- ================= CHAT ================= -->
+
+<section class="chat-panel">
+
+<div class="chat-title">
+💬 Live Class Chat
+</div>
+
+<div
+id="chatMessages"
+class="chat-messages"
+></div>
+
+<div class="chat-input">
+
+<input
+id="chatInput"
+type="text"
+placeholder="Type message..."
+/>
+
+<button
+id="sendChatBtn"
+class="btn btn-gold"
+type="button"
+>
+SEND
+</button>
+
+</div>
+
+</section>
+
+</main>
+
+
+<script>
+
+/* =========================================================
+   ANIKOUS LIVE CLASS ENGINE
+========================================================= */
+
+const socket =
+    typeof io !== "undefined"
+    ? io()
+    : null;
+
+const localVideo =
+    document.getElementById("localVideo");
+
+const remoteVideo =
+    document.getElementById("remoteVideo");
+
+const roomInput =
+    document.getElementById("roomId");
+
+const joinBtn =
+    document.getElementById("joinBtn");
+
+const micBtn =
+    document.getElementById("micBtn");
+
+const cameraBtn =
+    document.getElementById("cameraBtn");
+
+const switchCameraBtn =
+    document.getElementById("switchCameraBtn");
+
+const screenBtn =
+    document.getElementById("screenBtn");
+
+const leaveBtn =
+    document.getElementById("leaveBtn");
+
+
+let localStream = null;
+
+let currentRoom = null;
+
+let currentFacingMode = "user";
+
+let peers = {};
+
+
+/* =========================================================
+   SOCKET CONNECTION
+========================================================= */
+
+if(socket){
+
+socket.on("connect",()=>{
+
+    document.getElementById(
+        "connectionDot"
+    ).classList.add("online");
+
+    document.getElementById(
+        "connectionText"
+    ).textContent = "ONLINE";
+
+});
+
+
+socket.on("disconnect",()=>{
+
+    document.getElementById(
+        "connectionDot"
+    ).classList.remove("online");
+
+    document.getElementById(
+        "connectionText"
+    ).textContent = "OFFLINE";
+
+});
+
+}
+
+
+/* =========================================================
+   CAMERA
+========================================================= */
+
+async function startCamera(){
+
+try{
+
+localStream =
+await navigator.mediaDevices.getUserMedia({
+
+video:{
+    facingMode:currentFacingMode
+},
+
+audio:true
+
+});
+
+localVideo.srcObject =
+localStream;
+
+return true;
+
+}
+
+catch(error){
+
+alert(
+"Camera/Microphone permission required."
+);
+
+console.error(error);
+
+return false;
+
+}
+
+}
+
+
+/* =========================================================
+   JOIN CLASS
+========================================================= */
+
+joinBtn.onclick = async()=>{
+
+const room =
+roomInput.value.trim();
+
+if(!room){
+
+alert("Enter Class ID");
+
+return;
+
+}
+
+
+const started =
+await startCamera();
+
+if(!started)return;
+
+
+currentRoom =
+room;
+
+
+if(socket){
+
+socket.emit(
+"join-room",
+room
+);
+
+}
+
+
+joinBtn.textContent =
+"CLASS JOINED";
+
+joinBtn.disabled =
+true;
+
+};
+
+
+/* =========================================================
+   MIC
+========================================================= */
+
+micBtn.onclick = ()=>{
+
+if(!localStream)return;
+
+const track =
+localStream.getAudioTracks()[0];
+
+if(!track)return;
+
+track.enabled =
+!track.enabled;
+
+micBtn.textContent =
+track.enabled
+? "🎤 MIC ON"
+: "🔇 MIC OFF";
+
+micBtn.classList.toggle(
+"active",
+track.enabled
+);
+
+};
+
+
+/* =========================================================
+   CAMERA
+========================================================= */
+
+cameraBtn.onclick = ()=>{
+
+if(!localStream)return;
+
+const track =
+localStream.getVideoTracks()[0];
+
+if(!track)return;
+
+track.enabled =
+!track.enabled;
+
+cameraBtn.textContent =
+track.enabled
+? "📷 CAMERA ON"
+: "🚫 CAMERA OFF";
+
+cameraBtn.classList.toggle(
+"active",
+track.enabled
+);
+
+};
+
+
+/* =========================================================
+   SWITCH CAMERA
+========================================================= */
+
+switchCameraBtn.onclick =
+async()=>{
+
+if(!localStream)return;
+
+currentFacingMode =
+currentFacingMode === "user"
+? "environment"
+: "user";
+
+
+try{
+
+const newStream =
+await navigator.mediaDevices.getUserMedia({
+
+video:{
+    facingMode:currentFacingMode
+},
+
+audio:false
+
+});
+
+
+const newTrack =
+newStream.getVideoTracks()[0];
+
+
+const oldTrack =
+localStream.getVideoTracks()[0];
+
+
+if(oldTrack){
+
+oldTrack.stop();
+
+}
+
+
+localStream.removeTrack(
+oldTrack
+);
+
+localStream.addTrack(
+newTrack
+);
+
+localVideo.srcObject =
+localStream;
+
+
+Object.values(peers)
+.forEach(peer=>{
+
+const sender =
+peer.getSenders()
+.find(
+s =>
+s.track &&
+s.track.kind === "video"
+);
+
+if(sender){
+
+sender.replaceTrack(
+newTrack
+);
+
+}
+
+});
+
+
+}catch(error){
+
+console.error(
+"Camera switch error",
+error
+);
+
+}
+
+};
+
+
+/* =========================================================
+   SCREEN SHARE
+========================================================= */
+
+screenBtn.onclick =
+async()=>{
+
+try{
+
+const screenStream =
+await navigator.mediaDevices
+.getDisplayMedia({
+
+video:true
+
+});
+
+
+const screenTrack =
+screenStream.getVideoTracks()[0];
+
+
+const senderStreams =
+Object.values(peers);
+
+
+senderStreams.forEach(
+peer=>{
+
+const sender =
+peer.getSenders()
+.find(
+s =>
+s.track &&
+s.track.kind === "video"
+);
+
+if(sender){
+
+sender.replaceTrack(
+screenTrack
+);
+
+}
+
+});
+
+
+screenTrack.onended =
+async()=>{
+
+const cam =
+localStream
+.getVideoTracks()[0];
+
+Object.values(peers)
+.forEach(peer=>{
+
+const sender =
+peer.getSenders()
+.find(
+s =>
+s.track &&
+s.track.kind === "video"
+);
+
+if(sender){
+
+sender.replaceTrack(
+cam
+);
+
+}
+
+});
+
+};
+
+}catch(error){
+
+console.log(
+"Screen share cancelled."
+);
+
+}
+
+};
+
+
+/* =========================================================
+   LEAVE
+========================================================= */
+
+leaveBtn.onclick = ()=>{
+
+if(socket &&
+currentRoom){
+
+socket.emit(
+"leave-room",
+currentRoom
+);
+
+}
+
+if(localStream){
+
+localStream
+.getTracks()
+.forEach(
+track=>track.stop()
+);
+
+}
+
+localVideo.srcObject =
+null;
+
+Object.values(peers)
+.forEach(
+peer=>peer.close()
+);
+
+peers = {};
+
+currentRoom =
+null;
+
+joinBtn.disabled =
+false;
+
+joinBtn.textContent =
+"JOIN CLASS";
+
+};
+
+
+/* =========================================================
+   BASIC WEBRTC SIGNALING
+========================================================= */
+
+if(socket){
+
+socket.on(
+"signal",
+async data=>{
+
+const from =
+data.from;
+
+if(!from)return;
+
+
+if(!peers[from]){
+
+peers[from] =
+createPeer(
+from,
+false
+);
+
+}
+
+
+const peer =
+peers[from];
+
+
+try{
+
+if(data.signal){
+
+await peer.setRemoteDescription(
+new RTCSessionDescription(
+data.signal
+)
+);
+
+
+if(data.signal.type === "offer"){
+
+const answer =
+await peer.createAnswer();
+
+await peer.setLocalDescription(
+answer
+);
+
+socket.emit(
+"signal",
+{
+to:from,
+signal:peer.localDescription
+}
+);
+
+}
+
+}
+
+}catch(error){
+
+console.error(
+"WebRTC signal error",
+error
+);
+
+}
+
+});
+
+}
+
+
+function createPeer(
+userId,
+initiator
+){
+
+const peer =
+new RTCPeerConnection({
+
+iceServers:[
+{
+urls:
+"stun:stun.l.google.com:19302"
+}
+]
+
+});
+
+
+if(localStream){
+
+localStream
+.getTracks()
+.forEach(
+track =>
+peer.addTrack(
+track,
+localStream
+)
+);
+
+}
+
+
+peer.ontrack =
+event=>{
+
+if(
+event.streams &&
+event.streams[0]
+){
+
+remoteVideo.srcObject =
+event.streams[0];
+
+}
+
+};
+
+
+peer.onicecandidate =
+event=>{
+
+if(
+event.candidate &&
+socket
+){
+
+socket.emit(
+"signal",
+{
+to:userId,
+signal:{
+type:"candidate",
+candidate:event.candidate
+}
+}
+);
+
+}
+
+};
+
+
+if(initiator){
+
+peer.createOffer()
+.then(
+offer =>
+peer.setLocalDescription(
+offer
+)
+)
+.then(()=>{
+
+if(socket){
+
+socket.emit(
+"signal",
+{
+to:userId,
+signal:
+peer.localDescription
+}
+);
+
+}
+
+});
+
+}
+
+
+return peer;
+
+}
+
+
+/* =========================================================
+   CHAT
+========================================================= */
+
+const chatInput =
+document.getElementById(
+"chatInput"
+);
+
+const chatMessages =
+document.getElementById(
+"chatMessages"
+);
+
+const sendChatBtn =
+document.getElementById(
+"sendChatBtn"
+);
+
+
+function addChat(
+message,
+own=false
+){
+
+const div =
+document.createElement(
+"div"
+);
+
+div.style.padding =
+"7px 9px";
+
+div.style.marginBottom =
+"5px";
+
+div.style.borderRadius =
+"9px";
+
+div.style.background =
+own
+? "rgba(255,215,80,.08)"
+: "rgba(255,255,255,.04)";
+
+div.textContent =
+message;
+
+chatMessages.appendChild(
+div
+);
+
+chatMessages.scrollTop =
+chatMessages.scrollHeight;
+
+}
+
+
+sendChatBtn.onclick =
+()=>{
+
+const text =
+chatInput.value.trim();
+
+if(!text)return;
+
+
+addChat(
+"You: " + text,
+true
+);
+
+
+if(socket){
+
+socket.emit(
+"class-chat",
+{
+room:currentRoom,
+message:text
+}
+);
+
+}
+
+
+chatInput.value =
+"";
+
+};
+
+
+chatInput.addEventListener(
+"keydown",
+e=>{
+
+if(e.key === "Enter"){
+
+sendChatBtn.click();
+
+}
+
+});
+
+
+if(socket){
+
+socket.on(
+"class-chat",
+data=>{
+
+if(data &&
+data.message){
+
+addChat(
+data.message
+);
+
+}
+
+});
+
+}
+
+
+/* =========================================================
+   PREMIUM MIDI ENGINE
+========================================================= */
+
+const midiDeviceSelect =
+document.getElementById(
+"midiDeviceSelect"
+);
+
+const connectMidiBtn =
+document.getElementById(
+"connectMidiBtn"
+);
+
+const refreshMidiBtn =
+document.getElementById(
+"refreshMidiBtn"
+);
+
+const panicMidiBtn =
+document.getElementById(
+"panicMidiBtn"
+);
+
+const midiDeviceName =
+document.getElementById(
+"midiDeviceName"
+);
+
+const noteMonitor =
+document.getElementById(
+"noteMonitor"
+);
+
+const midiMessage =
+document.getElementById(
+"midiMessage"
+);
+
+const midiStatusBadge =
+document.getElementById(
+"midiStatusBadge"
+);
+
+const midiDot =
+document.getElementById(
+"midiDot"
+);
+
+const midiStatusText =
+document.getElementById(
+"midiStatusText"
+);
+
+
+let midiAccess =
+null;
+
+let midiInput =
+null;
+
+let activeNotes =
+new Set();
+
+
+function setMidiStatus(
+message,
+connected=false
+){
+
+midiMessage.textContent =
+message;
+
+midiStatusBadge.classList.toggle(
+"online",
+connected
+);
+
+midiDot.classList.toggle(
+"online",
+connected
+);
+
+midiStatusText.textContent =
+connected
+? "ONLINE"
+: "OFFLINE";
+
+}
+
+
+function midiMessageHandler(
+event
+){
+
+const data =
+event.data;
+
+if(!data ||
+data.length < 2)
+return;
+
+
+const status =
+data[0] & 0xf0;
+
+const note =
+data[1];
+
+const velocity =
+data[2] || 0;
+
+
+const noteOn =
+status === 0x90 &&
+velocity > 0;
+
+const noteOff =
+status === 0x80 ||
+(
+status === 0x90 &&
+velocity === 0
+);
+
+
+if(!noteOn &&
+!noteOff)
+return;
+
+
+if(noteOn){
+
+activeNotes.add(
+note
+);
+
+noteMonitor.textContent =
+"NOTE " +
+note +
+" • LIVE";
+
+}else{
+
+activeNotes.delete(
+note
+);
+
+noteMonitor.textContent =
+"READY";
+
+}
+
+
+/* Send MIDI to class */
+
+if(socket &&
+currentRoom){
+
+socket.emit(
+"midi-event",
+{
+
+room:currentRoom,
+
+type:
+noteOn
+? "noteon"
+: "noteoff",
+
+note:note,
+
+velocity:velocity,
+
+channel:
+(data[0] & 0x0f) + 1
+
+}
+);
+
+}
+
+}
+
+
+/* =========================================================
+   MIDI DEVICE
+========================================================= */
+
+function attachMidiInput(
+input
+){
+
+if(midiInput){
+
+midiInput.onmidimessage =
+null;
+
+}
+
+
+midiInput =
+input || null;
+
+
+if(!midiInput){
+
+midiDeviceName.textContent =
+"Not Connected";
+
+setMidiStatus(
+"USB MIDI keyboard not detected. Check your USB-C OTG/data connection.",
+false
+);
+
+return;
+
+}
+
+
+midiInput.onmidimessage =
+midiMessageHandler;
+
+
+midiDeviceName.textContent =
+midiInput.name ||
+"USB MIDI Keyboard";
+
+
+setMidiStatus(
+"MIDI keyboard connected — ready for live class.",
+true
+);
+
+}
+
+
+function refreshMidiDevices(){
+
+if(!midiAccess)
+return;
+
+
+const inputs =
+Array.from(
+midiAccess.inputs.values()
+);
+
+
+midiDeviceSelect.innerHTML =
+"";
+
+
+if(inputs.length === 0){
+
+const option =
+document.createElement(
+"option"
+);
+
+option.textContent =
+"No MIDI Device Detected";
+
+option.value =
+"";
+
+midiDeviceSelect.appendChild(
+option
+);
+
+attachMidiInput(
+null
+);
+
+return;
+
+}
+
+
+inputs.forEach(
+input=>{
+
+const option =
+document.createElement(
+"option"
+);
+
+option.value =
+input.id;
+
+option.textContent =
+input.name ||
+"MIDI Keyboard";
+
+midiDeviceSelect.appendChild(
+option
+);
+
+}
+);
+
+
+midiDeviceSelect.value =
+inputs[0].id;
+
+
+attachMidiInput(
+inputs[0]
+);
+
+}
+
+
+async function connectMIDI(){
+
+if(
+!navigator.requestMIDIAccess
+){
+
+setMidiStatus(
+"Web MIDI is not available in this browser.",
+false
+);
+
+return;
+
+}
+
+
+try{
+
+midiMessage.textContent =
+"Requesting MIDI access...";
+
+
+midiAccess =
+await navigator.requestMIDIAccess({
+sysex:false
+});
+
+
+midiAccess.onstatechange =
+refreshMidiDevices;
+
+
+refreshMidiDevices();
+
+
+if(
+midiAccess.inputs.size === 0
+){
+
+setMidiStatus(
+"No MIDI keyboard detected. Check USB-C OTG and use a DATA cable.",
+false
+);
+
+}
+
+}catch(error){
+
+console.error(
+"MIDI error:",
+error
+);
+
+setMidiStatus(
+"MIDI permission denied or unavailable.",
+false
+);
+
+}
+
+}
+
+
+/* =========================================================
+   MIDI SELECT
+========================================================= */
+
+midiDeviceSelect.onchange =
+()=>{
+
+if(!midiAccess)
+return;
+
+
+const input =
+midiAccess.inputs.get(
+midiDeviceSelect.value
+);
+
+
+attachMidiInput(
+input
+);
+
+};
+
+
+/* =========================================================
+   MIDI REFRESH
+========================================================= */
+
+refreshMidiBtn.onclick =
+()=>{
+
+if(!midiAccess){
+
+connectMIDI();
+
+return;
+
+}
+
+refreshMidiDevices();
+
+};
+
+
+/* =========================================================
+   MIDI CONNECT
+========================================================= */
+
+connectMidiBtn.onclick =
+connectMIDI;
+
+
+/* =========================================================
+   MIDI PANIC
+========================================================= */
+
+panicMidiBtn.onclick =
+()=>{
+
+activeNotes.clear();
+
+noteMonitor.textContent =
+"ALL NOTES STOPPED";
+
+
+try{
+
+if(midiInput){
+
+midiInput.send([
+0xB0,
+123,
+0
+]);
+
+midiInput.send([
+0xB0,
+120,
+0
+]);
+
+}
+
+}catch(error){
+
+console.log(error);
+
+}
+
+
+if(socket &&
+currentRoom){
+
+socket.emit(
+"midi-event",
+{
+room:currentRoom,
+type:"panic"
+}
+);
+
+}
+
+};
+
+
+/* =========================================================
+   REMOTE MIDI
+========================================================= */
+
+if(socket){
+
+socket.on(
+"midi-event",
+data=>{
+
+if(!data)
+return;
+
+
+/*
+ Remote MIDI events can be
+ connected here to a virtual
+ piano / MIDI output.
+ */
+
+});
+
+}
+
+
+/* =========================================================
+   STARTUP
+========================================================= */
+
+window.addEventListener(
+"load",
+()=>{
+
+setMidiStatus(
+"Ready — connect your USB MIDI keyboard using USB-C.",
+false
+);
+
+});
+
+</script>
+
+</body>
+</html>
